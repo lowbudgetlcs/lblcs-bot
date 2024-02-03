@@ -1,8 +1,9 @@
+import discord
+from discord import SelectOption
 import cachetools.func
-import discord, discord.ext.commands as commands
-from discord import app_commands, SelectOption
 
 # TODO: Investiage if caching is actually helpful
+
 @cachetools.func.ttl_cache(maxsize=10, ttl=3600)
 def fetch_leagues() -> list[SelectOption]:
     # TODO: Fetch tournament list from supabase
@@ -17,21 +18,6 @@ def fetch_leagues() -> list[SelectOption]:
 def fetch_teams() -> list[SelectOption]:
     # TODO: Fetch team list of ALL TEAMS
     return [SelectOption(label="Team 1", value="1"), SelectOption(label="Team 2", value="2")]
-
-def check_code_role(interaction: discord.Interaction) -> bool:
-    accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Dev"]
-    return True in [(x in accepted_roles) for x in interaction.user.roles]
-
-class Tournament(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.tournaments = []
-
-    @app_commands.command(name='tcode')
-    @app_commands.check(check_code_role)
-    async def tcode(self, ctx):
-        # TODO: Hit RIOT API endpoint to generate tcode
-        await ctx.send("Hello world!")
 
 
 class GameCreationModal(discord.ui.Modal, title='GameCreation'):
@@ -60,7 +46,3 @@ class GameCreationModal(discord.ui.Modal, title='GameCreation'):
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         await interaction.response.send_message('Oops! Something went wrong.', ephemeral=True)
-
-async def setup(bot):
-    await bot.add_cog(Tournament(bot))
-
