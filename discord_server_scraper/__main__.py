@@ -11,12 +11,10 @@ GUILD_ID = int(os.getenv('GUILD_ID'))
 class Client(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
-        intents.message_content = True
         super().__init__(command_prefix='', intents=intents)
 
     async def on_ready(self):
         print(f'Logged in as {self.user} ID {self.application_id}')
-
         users = []
         members = self.get_guild(GUILD_ID).members
         for member in members:
@@ -24,6 +22,7 @@ class Client(commands.Bot):
         print(users)
 
     async def setup_hook(self):
+        print('Loading extensions...')
         await self.load_extension('tournaments')
         await self.tree.sync(guild=self.get_guild(GUILD_ID))
 
