@@ -1,11 +1,11 @@
 import discord
 import os
-from bot import Bot
+from lblcs_bot.bot import Bot
 from dotenv import load_dotenv
 import logging
 
 #Set up environmental variables
-load_dotenv('.env')
+load_dotenv('lblcs_bot/.env')
 token = os.getenv('TOKEN')
 guild_id = os.getenv('GUILD_ID')
 
