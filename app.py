@@ -23,4 +23,4 @@ supabase_client:Client = create_client(supabase_url, supabase_key)
 intents = discord.Intents.default()
 client = Bot(guild_id, intents, supabase_client)
 
-client.run(discord_token, log_level=logging.DEBUG, root_logger=True)
+client.run(discord_token, log_level=logging.INFO, root_logger=True)
