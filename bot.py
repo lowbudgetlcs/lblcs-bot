@@ -1,20 +1,18 @@
 import logging
 import os
+
+import discord
 from supabase import create_client, Client
 
 from discord.ext import commands
-import lblcs_bot.models
-from lblcs_bot.cogs.scraper import Scraper
-from lblcs_bot.cogs.tournaments import Tournament
-
+from cogs.scraper import Scraper
+from cogs.tournaments import Tournament
 
 class Bot(commands.Bot):
-    def __init__(self,guild_id,intents):
+    def __init__(self, guild_id: int, intents: discord.Intents, supabase_client: Client):
         super().__init__('$',intents=intents)
         self.guild_id = guild_id
-        url = os.getenv("SUPABASE_URL")
-        key = os.getenv("SUPABASE_KEY")
-        self.supabase: Client = create_client(url, key)
+        self.supabase: Client = supabase_client
 
     async def on_ready(self):
         logging.info(f'Logged in as {self.user} GUILD_ID: {self.guild_id}')
@@ -30,3 +28,5 @@ class Bot(commands.Bot):
         logging.info('Loading cogs')
         await self.add_cog(Tournament(self))
         await self.add_cog(Scraper(self))
+
+
