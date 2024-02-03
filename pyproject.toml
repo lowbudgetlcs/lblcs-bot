@@ -1,8 +1,5 @@
 [tool.poetry]
 name = "discord-server-scraper"
-
-[tool.poetry]
-name = "discord-server-scraper"
 version = "0.1.0"
 description = "Scrapes information from servers such as roles, users and inserts it into a database for the LBLCS."
 authors = ["Alexander Summer"]

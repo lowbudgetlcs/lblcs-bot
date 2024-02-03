@@ -9,10 +9,8 @@ def check_code_role(interaction: discord.Interaction) -> bool:
     authorized = [(x.name in accepted_roles) for x in interaction.user.roles]
     return True in authorized
 
-@cachetools.func.ttl_cache(maxsize=10, ttl=3600)
 async def fetch_leagues() -> list[str]:
     logging.info("Fetching leagues")
-    # TODO: Fetch tournament list from supabase
     return ["Economy", "Commercial", "Financial", "Executive"]
 
 @cachetools.func.ttl_cache(maxsize=10, ttl=600)
