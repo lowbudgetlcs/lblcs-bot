@@ -3,26 +3,31 @@ from discord import app_commands
 import logging
 import cachetools.func
 import json
+from supabase import create_client, Client
+import os
 
 def check_code_role(interaction: discord.Interaction) -> bool:
     accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Dev"]
     authorized = [(x.name in accepted_roles) for x in interaction.user.roles]
     return True in authorized
 
+async def generate_code(metadata) -> str:
+    logging.info("Generating code")
+    # TODO: Generate tournament code through Riot api
+    return json.dumps(metadata)
+
 async def fetch_leagues() -> list[str]:
     logging.info("Fetching leagues")
     return ["Economy", "Commercial", "Financial", "Executive"]
 
 @cachetools.func.ttl_cache(maxsize=10, ttl=600)
-async def fetch_teams() -> list[str]:
+async def fetch_teams(client: Client) -> list[str]:
     logging.info("Fetching teams")
     # TODO: Fetch team list of ALL TEAMS from supabase
-    return ["Team 1", "Team 2"]
-
-async def generate_code(metadata) -> str:
-    logging.info("Generating code")
-    # TODO: Generate tournament code through Riot api
-    return json.dumps(metadata)
+    data = client.table("teams").select("team_name").execute()
+    teams = data.model_dump()
+    valid_teams = [team["team_name"] for team in teams["data"]]
+    return valid_teams
 
 class Tournament(commands.Cog):
     def __init__(self, bot):
@@ -33,6 +38,7 @@ class Tournament(commands.Cog):
     @app_commands.command(name='generate-tournament-code', description="Used to generate a tournament code!")
     @app_commands.check(check_code_role)
     async def tcode(self, interaction: discord.Interaction):
+        logging.info("Code generation invoked")
         # TODO: Hit RIOT API endpoint to generate tcode
         await interaction.response.send_modal(GameCreationModal())
 
@@ -64,9 +70,11 @@ class GameCreationModal(discord.ui.Modal, title='GameCreation'):
     )
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        logging.info("Code generation started")
+        url = os.getenv("SUPABASE_URL")
+        key = os.getenv("SUPABASE_KEY")
+        supabase: Client = create_client(url, key)
         leagues = await fetch_leagues()
-        teams = await fetch_teams()
+        teams = await fetch_teams(supabase)
 
         metadata = {'league': self.league.value, 'team1': self.team1.value, 'team2': self.team2.value}
 

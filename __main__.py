@@ -14,6 +14,4 @@ guild_id = os.getenv('GUILD_ID')
 intents = discord.Intents.default()
 client = Bot(guild_id, intents)
 
-#Logging Setup
-
 client.run(token, log_level=logging.INFO, root_logger=True)
