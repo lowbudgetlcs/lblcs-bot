@@ -28,7 +28,7 @@ logging.getLogger('discord.http').setLevel(logging.INFO)
 logging.getLogger('discord.gateway').setLevel(logging.INFO)
 
 handler = logging.handlers.RotatingFileHandler(
-    filename='logs/discord.log',
+    filename='/var/logs/lblcs/lblcs.log',
     encoding='utf-8',
     maxBytes=32 * 1024 * 1024,  # 32 MiB
     backupCount=5,  # Rotate through 5 files

@@ -2,7 +2,8 @@ services:
   lblcs-bot:
     image: lblcs/discord-bot:latest
     volumes:
-      - logfiles:/app/logs
+      - logfiles:/var/logs/lblcs
 
 volumes:
-  logsfiles:
+  logfiles:
+    external: true

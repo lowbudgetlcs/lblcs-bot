@@ -22,6 +22,10 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
 
+      - name: Generate .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: Log into Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
@@ -34,5 +38,15 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: latest
+          tags: lblcs/discord-bot:latest
 
+      - name: SSH into Digital Ocean
+        uses: appleboy/ssh-action@1.0.3
+        with:
+          host: ${{ secrets.DIGITAL_OCEAN_IP }}
+          username: ${{ secrets.DIGITAL_OCEAN_USERNAME }}
+          key: ${{ secrets.DIGITAL_OCEAN_KEY }}
+          script: |
+            docker compose down
+            docker pull lblcs/discord-bot
+            docker compose up
