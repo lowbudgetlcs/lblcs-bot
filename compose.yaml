@@ -1,6 +1,6 @@
 services:
   lblcs-bot:
-    image: lblcs/discord-bot
+    image: lblcs/discord-bot:latest
     volumes:
       - logfiles:/app/logs
 
