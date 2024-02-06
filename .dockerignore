@@ -1,0 +1,10 @@
+.venv
+.git
+.gitignore
+__pycache__
+.idea
+.vscode
+README.md
+poetry.lock
+compose.yaml
+
