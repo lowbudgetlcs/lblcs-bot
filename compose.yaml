@@ -1,0 +1,8 @@
+services:
+  lblcs-bot:
+    image: lblcs/discord-bot
+    volumes:
+      - logfiles:/app/logs
+
+volumes:
+  logsfiles:

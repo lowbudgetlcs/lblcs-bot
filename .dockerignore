@@ -6,5 +6,5 @@ __pycache__
 .vscode
 README.md
 poetry.lock
-compose.yml
+compose.yaml
 
