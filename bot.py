@@ -15,18 +15,19 @@ class Bot(commands.Bot):
         self.supabase: Client = supabase_client
 
     async def on_ready(self):
-        logging.info(f'Logged in as {self.user} GUILD_ID: {self.guild_id}')
-        # guild = self.get_guild(self.guild_id)
-        # print(f'{guild}')
-        # members = guild.members
-        # for member in members:
-        #     print(f'{member.roles}')
-        logging.info("Syncing application commands")
-        await self.tree.sync(guild=self.get_guild(self.guild_id))
+        self.tree.on_error = self.on_tree_error
+        logging.info("We are ready to rumble!")
 
+        # await self.tree.sync()
     async def setup_hook(self):
         logging.info('Loading cogs')
-        await self.add_cog(Tournament(self))
         await self.add_cog(Scraper(self))
+        await self.add_cog(Tournament(self))
 
-
+    async def on_tree_error(self, interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
+        if isinstance(error, discord.app_commands.CommandOnCooldown):
+            return await interaction.response.send_message(f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
+        elif isinstance(error, discord.app_commands.MissingRole):
+            return await interaction.response.send_message(f"You're missing permissions to use that", ephemeral=True)
+        else:
+            raise error
