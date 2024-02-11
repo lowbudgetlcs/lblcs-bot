@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from models.user import User
+from models import User
 import logging
 
 class Scraper(commands.Cog):
@@ -16,7 +16,7 @@ class Scraper(commands.Cog):
     def read_members(self):
         users = []
         guild = self.bot.get_guild(self.bot.guild_id)
-        role = get_role('816783440803921961')
+        role = self.bot.get_role('816783440803921961')
         members = role.members
         for member in members:
             print(member)
