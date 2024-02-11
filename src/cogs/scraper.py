@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from models import User
+from src.models import User
 import logging
 
 class Scraper(commands.Cog):

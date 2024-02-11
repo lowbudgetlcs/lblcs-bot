@@ -2,7 +2,7 @@ import discord
 import logging
 import os
 import requests
-from models.metadata import Metadata
+from src.models.metadata import Metadata
 
 
 async def generate_code(metadata: Metadata) -> str | None:

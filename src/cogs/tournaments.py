@@ -1,7 +1,7 @@
 import logging
 
 # from src.bot import Bot
-from modals.code_generation_modal import CodeGenerationModal
+from src.modals.code_generation_modal import CodeGenerationModal
 
 import discord, discord.ext.commands as commands
 from discord import app_commands

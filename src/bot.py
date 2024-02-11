@@ -1,11 +1,11 @@
 import logging
 
 import discord
-from db.database import Supabase
+from src.db.database import Supabase
 
 from discord.ext import commands
-from cogs.scraper import Scraper
-from cogs.tournaments import Tournament
+from src.cogs.scraper import Scraper
+from src.cogs.tournaments import Tournament
 
 class Bot(commands.Bot):
     def __init__(self, guild_id: int, intents: discord.Intents, db_client: Supabase):
