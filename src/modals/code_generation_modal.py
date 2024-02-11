@@ -27,6 +27,7 @@ async def generate_code(metadata: Metadata) -> str | None:
         raise Exception("Riot API Error! Contact ruuffian or open urgent ticket immediately!")
     return code_response.json()[0]
 
+
 class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
     def __init__(self, bot_i):
         super().__init__()
@@ -83,11 +84,15 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
         series_id = await self.bot.supabase.fetch_series_id(team_lst)
 
         # ------- GENERATE TCODE WITH METADATA -------
-        metadata: Metadata = Metadata(series_id=series_id, league=self.league.value, teams=[self.team1.value, self.team2.value], game=game)
+        metadata: Metadata = Metadata(series_id=series_id, league=self.league.value,
+                                      teams=[self.team1.value, self.team2.value], game=game)
         code = await generate_code(metadata)
 
-        await interaction.response.send_message(f'## {self.league}\n__**{self.team1}**__ v.s. __**{self.team2}**__\nCode:: `{code}`', ephemeral=False)
+        await interaction.response.send_message(
+            f'## {self.league}\n__**{self.team1}**__ v.s. __**{self.team2}**__\nCode:: `{code}`', ephemeral=False)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         logging.warning(error)
-        await interaction.response.send_message(f'Oops, we ran into an error!\nHere is the error:: {error}\nVery likely, this is the result of a typo. If the printed error message is confusing or you are positive there is no typo, please open an urgent ticket immediately!', ephemeral=True)
+        await interaction.response.send_message(
+            f'Oops, we ran into an error!\nHere is the error:: {error}\nVery likely, this is the result of a typo. If the printed error message is confusing or you are positive there is no typo, please open an urgent ticket immediately!',
+            ephemeral=True)

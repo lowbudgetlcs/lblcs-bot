@@ -1,6 +1,7 @@
 from dataclasses import dataclass, asdict
 import json
 
+
 @dataclass
 class Metadata:
     league: str

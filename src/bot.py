@@ -7,9 +7,10 @@ from discord.ext import commands
 from src.cogs.scraper import Scraper
 from src.cogs.tournaments import Tournament
 
+
 class Bot(commands.Bot):
     def __init__(self, guild_id: int, intents: discord.Intents, db_client: Supabase):
-        super().__init__('$',intents=intents)
+        super().__init__('$', intents=intents)
         self.guild_id = guild_id
         self.supabase: Supabase = db_client
 
@@ -26,7 +27,8 @@ class Bot(commands.Bot):
 
     async def on_tree_error(self, interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
         if isinstance(error, discord.app_commands.CommandOnCooldown):
-            return await interaction.response.send_message(f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
+            return await interaction.response.send_message(
+                f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
         elif isinstance(error, discord.app_commands.MissingRole):
             return await interaction.response.send_message(f"You're missing permissions to use that", ephemeral=True)
         else:
