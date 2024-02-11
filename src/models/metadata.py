@@ -4,8 +4,8 @@ import json
 @dataclass
 class Metadata:
     league: str
-    team1: str
-    team2: str
+    teams: list[str]
+    series_id: int = 0
     game: int = 0
 
     def serialize(self):

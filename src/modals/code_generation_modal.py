@@ -2,9 +2,8 @@ import discord
 import logging
 import os
 import requests
-from supabase import Client
-from models.metadata import Metadata
-import json
+from src.models.metadata import Metadata
+
 
 async def generate_code(metadata: Metadata) -> str | None:
     logging.info("Generating code")
@@ -28,25 +27,11 @@ async def generate_code(metadata: Metadata) -> str | None:
         raise Exception("Riot API Error! Contact ruuffian or open urgent ticket immediately!")
     return code_response.json()[0]
 
-
-async def fetch_leagues() -> list[str]:
-    logging.info("Fetching leagues")
-    return ["Economy", "Commercial", "Financial", "Executive"]
-
-
-async def fetch_teams(supabase: Client) -> list[str]:
-    logging.info("Fetching teams")
-    data = supabase.table("teams").select("team_name").execute()
-    teams = data.model_dump()
-    valid_teams = [team["team_name"] for team in teams["data"]]
-    return valid_teams
-
-class GameCreationModal(discord.ui.Modal, title='GameCreation'):
-    def __init__(self, supabase: Client):
+class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
+    def __init__(self, bot_i):
         super().__init__()
-        self.supabase = supabase
+        self.bot = bot_i
 
-    # TODO: ENABLE AUTOCOMPLETE ON TEAM SELECTIONS!
     league = discord.ui.TextInput(
         label='League',
         placeholder='Economy, Commercial...',
@@ -72,31 +57,35 @@ class GameCreationModal(discord.ui.Modal, title='GameCreation'):
     )
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
+        # ------- VALIDATE FORM -------
+        leagues = await self.bot.supabase.fetch_divisions()
+        if self.league.value not in leagues:
+            raise Exception(f'{self.league.value} not found! Please check for typos and try again.')
+        league = self.league.value
 
-        leagues = await fetch_leagues()
-        teams = await fetch_teams(self.supabase)
+        teams = await self.bot.supabase.fetch_teams(league)
+        if self.team1.value.lower() not in [team.lower() for team in teams]:
+            raise Exception(f"{self.team1.value} not found! Please check for typos and try again.")
+        if self.team2.value.lower() not in [team.lower() for team in teams]:
+            raise Exception(f"{self.team2.value} not found! Please check for typos and try again.")
+        if self.team1.value.lower() == self.team2.value.lower():
+            raise Exception("Teams cannot play themselves! Try again!")
+        team_lst = [self.team1.value, self.team2.value]
 
-        metadata: Metadata = Metadata(league=self.league.value, team1=self.team1.value, team2=self.team2.value)
-
-        # TODO: Check that the league and both teams EXIST and ARE LEGAL OPPONENTS
-        #   1. TEAMS ARE IN THE SAME LEAGUE
-        if metadata.league not in leagues:
-            raise Exception("Not valid League!")
-        elif metadata.team1 not in teams:
-            raise Exception("Team 1 invalid!")
-        elif metadata.team2 not in teams:
-            raise Exception("Team 2 invalid!")
-        elif metadata.team1.lower() == metadata.team2.lower():
-            raise Exception("Teams cannot play themselves!")
         try:
-            metadata.game = int(self.game.value)
+            game = int(self.game.value)
         except ValueError:
-            raise Exception("Game must be an integer!")
+            raise Exception("Game must be an integer! i.e 1 for game 1, 2 for game 2 etc...")
 
+        # ------- FETCH OR GENERATE SERIES ID -------
+        series_id = await self.bot.supabase.fetch_series_id(league, team_lst)
+
+        # ------- GENERATE TCODE WITH METADATA -------
+        metadata: Metadata = Metadata(series_id=series_id, league=self.league.value, teams=[self.team1.value, self.team2.value], game=game)
         code = await generate_code(metadata)
 
         await interaction.response.send_message(f'## {self.league}\n__**{self.team1}**__ v.s. __**{self.team2}**__\nCode:: `{code}`', ephemeral=True)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         logging.warning(error)
-        await interaction.response.send_message(f'Here is the error:: {error}\nIt\'s probably just a typo- if so, resubmit with corrections. If the aforementioned error is weird or confusing, please open an urgent ticket immediately!', ephemeral=True)
+        await interaction.response.send_message(f'Oops, we ran into an error!\nHere is the error:: {error}\nVery likely, this is the result of a typo. If the printed error message is confusing or you are positive there is no typo, please open an urgent ticket immediately!', ephemeral=True)

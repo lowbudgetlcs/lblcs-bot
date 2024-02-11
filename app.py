@@ -1,9 +1,9 @@
 import discord
 import os
-import logging, logging.handlers
-from bot import Bot
+import logging.handlers
+from src.bot import Bot
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from src.db.database import Supabase
 
 #Set up environmental variables
 load_dotenv('.env')
@@ -17,11 +17,12 @@ tournament_code_endpoint = os.getenv("TOURNAMENT_CODE_ENDPOINT")
 
 
 #Supabase setup
-supabase_client:Client = create_client(supabase_url, supabase_key)
+db_client:Supabase = Supabase(supabase_url, supabase_key)
 
 #Bot setup
 intents = discord.Intents.default()
 
+#Logging setup
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
 logging.getLogger('discord.http').setLevel(logging.INFO)
@@ -38,8 +39,7 @@ formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-client = Bot(guild_id, intents, supabase_client)
 
-
-
+#Client instantiation + run
+client = Bot(guild_id, intents, db_client)
 client.run(discord_token, log_handler=None, )

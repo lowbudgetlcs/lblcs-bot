@@ -1,24 +1,24 @@
 import logging
-import os
 
 import discord
-from supabase import create_client, Client
+from src.db.database import Supabase
 
 from discord.ext import commands
-from cogs.scraper import Scraper
-from cogs.tournaments import Tournament
+from src.cogs.scraper import Scraper
+from src.cogs.tournaments import Tournament
 
 class Bot(commands.Bot):
-    def __init__(self, guild_id: int, intents: discord.Intents, supabase_client: Client):
+    def __init__(self, guild_id: int, intents: discord.Intents, db_client: Supabase):
         super().__init__('$',intents=intents)
         self.guild_id = guild_id
-        self.supabase: Client = supabase_client
+        self.supabase: Supabase = db_client
 
     async def on_ready(self):
         self.tree.on_error = self.on_tree_error
         logging.info("We are ready to rumble!")
 
         # await self.tree.sync()
+
     async def setup_hook(self):
         logging.info('Loading cogs')
         await self.add_cog(Scraper(self))
