@@ -60,7 +60,7 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
         # ------- VALIDATE FORM -------
         leagues = await self.bot.supabase.fetch_divisions()
         if self.league.value not in leagues:
-            raise Exception(f'f{self.league.value} not found! Please check for typos and try again.')
+            raise Exception(f'{self.league.value} not found! Please check for typos and try again.')
         league = self.league.value
 
         teams = await self.bot.supabase.fetch_teams(league)

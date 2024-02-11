@@ -3,7 +3,7 @@ import os
 import logging.handlers
 from src.bot import Bot
 from dotenv import load_dotenv
-from src.db import Supabase
+from src.db.database import Supabase
 
 #Set up environmental variables
 load_dotenv('.env')
