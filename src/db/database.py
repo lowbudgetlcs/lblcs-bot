@@ -1,4 +1,7 @@
+import logging
+import json
 import supabase
+from postgrest.base_request_builder import CountMethod
 from postgrest import APIResponse
 from postgrest.base_request_builder import SingleAPIResponse
 
@@ -8,31 +11,55 @@ class Supabase(supabase.Client):
 
     async def fetch_divisions(self) -> list[str]:
         """Fetch current leagues"""
-        divisions_res: APIResponse = self.table('divisions').select("division_name").execute()
-        if len(divisions_res.data) <= 0:
+        logging.info("Fetching divisions")
+        r: APIResponse = (self.table('divisions')
+                          .select("division_name", count=CountMethod.exact)
+                          .execute())
+        logging.info(f'Recieved response:: {r}')
+        if r.count <= 0:
             raise Exception("Error retrieving divisions")
-        divisions = [division["division_name"] for division in divisions_res.data]
+        divisions = [division["division_name"] for division in r.data]
         return divisions
 
     async def fetch_teams(self, division_name: str) -> list[str]:
         """Fetch all teams from a given league"""
-        division_id_res: SingleAPIResponse = (self.table('divisions').select('division_id')
-                                              .eq('division_name', division_name).limit(1).single().execute())
-        division_id = division_id_res.data["division_id"]
-        teams_res: APIResponse = self.table('teams').select('team_name').eq('division_id', division_id).execute()
-        if len(teams_res.data) <= 0:
+        logging.info(f"Fetching teams from {division_name}")
+        r_div_id: SingleAPIResponse = (self.table('divisions')
+                .select('division_id')
+                .eq('division_name', division_name.upper())
+                .limit(1).single()
+                .execute())
+        logging.debug(f'Recieved response:: {r_div_id}')
+        division_id = r_div_id.data["division_id"]
+        logging.debug(f'Fetched Division ID: {division_id}')
+        r_teams: APIResponse = (self.table('teams')
+                       .select('team_name', count=CountMethod.exact)
+                       .eq('division_id', division_id)
+                       .execute())
+        logging.debug(f'Recieved response:: {r_teams}')
+        if r_teams.count <= 0:
             raise Exception("Error retrieving teams")
-        teams = [team["team_name"] for team in teams_res.data]
+        logging.debug(f'Fetched teams:: {r_teams.data}')
+        teams = [team["team_name"] for team in r_teams.data]
         return teams
 
-    async def fetch_series_id(self, league: str, teams: list[str]) -> int:
+    async def fetch_series_id(self, teams: list[str]) -> int:
         """Fetch a series id if it exists, otherwise creates one and populates the table"""
-        series_id_res: SingleAPIResponse = (self.table('series_test').select('series_id')
-                                            .contained_by('teams', teams).limit(1).maybe_single().execute())
-        if series_id_res.data is None:
-            insert_series_res: APIResponse = self.table('series_test').insert({"series_id": "DEFAULT", "teams": [teams]}).execute()
-            if len(insert_series_res.data) > 0:
-                return insert_series_res.data[0]["series_id"]
-        series_id = series_id_res.data["series_id"]
+        logging.info(f'Fetching or generating series id')
+        r_series_id: SingleAPIResponse = (self.table('series_test')
+                       .select('series_id', count=CountMethod.exact)
+                       .contains('teams', teams)
+                       .limit(1).maybe_single()
+                       .execute())
+        logging.info(f'Recieved response:: {r_series_id}')
+        if r_series_id.count <= 0:
+            new_series_id_r: APIResponse = (self.table('series_test')
+                     .insert({"teams": teams}, count=CountMethod.exact)
+                     .execute())
+            logging.info(f'Recieved response: {new_series_id_r}')
+            if new_series_id_r.count > 0:
+                series_id = new_series_id_r.data[0]["series_id"]
+                return series_id
+        series_id = r_series_id.data["series_id"]
         return series_id
 
