@@ -5,7 +5,7 @@ from src.bot import Bot
 from dotenv import load_dotenv
 from src.db.database import Supabase
 
-#Set up environmental variables
+# Set up environmental variables
 load_dotenv('.env')
 discord_token = os.getenv('DISCORD_TOKEN')
 guild_id = int(os.getenv('GUILD_ID'))
@@ -15,18 +15,17 @@ provider_id = int(os.getenv("PROVIDER_ID"))
 tournament_id = int(os.getenv("TOURNAMENT_ID"))
 tournament_code_endpoint = os.getenv("TOURNAMENT_CODE_ENDPOINT")
 
+# Supabase setup
+db_client: Supabase = Supabase(supabase_url, supabase_key)
 
-#Supabase setup
-db_client:Supabase = Supabase(supabase_url, supabase_key)
-
-#Bot setup
+# Bot setup
 intents = discord.Intents.default()
 
-#Logging setup
+# Logging setup
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-logging.getLogger('discord.http').setLevel(logging.INFO)
-logging.getLogger('discord.gateway').setLevel(logging.INFO)
+# logging.getLogger('discord.http').setLevel(logging.INFO)
+# logging.getLogger('discord.gateway').setLevel(logging.INFO)
 
 handler = logging.handlers.RotatingFileHandler(
     filename='/var/logs/lblcs/lblcs.log',
@@ -39,7 +38,6 @@ formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-
-#Client instantiation + run
+# Client instantiation + run
 client = Bot(guild_id, intents, db_client)
 client.run(discord_token, log_handler=None, )

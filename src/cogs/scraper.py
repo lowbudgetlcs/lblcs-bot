@@ -4,6 +4,7 @@ from discord.ext import commands
 from src.models.user import User
 import logging
 
+
 class Scraper(commands.Cog):
     def __init__(self, bot):
         logging.info("Loading scraper cog")
@@ -16,7 +17,7 @@ class Scraper(commands.Cog):
         members = role.members
         for member in members:
             print(member)
-            users.append(User(member.id,member.name,member.display_name))
+            users.append(User(member.id, member.name, member.display_name))
         print(users)
 
     @app_commands.command(name='sync-users', description="Used to sync users!")
