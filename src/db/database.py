@@ -53,7 +53,7 @@ class Supabase(supabase.Client):
                                           .limit(1).maybe_single()
                                           .execute())
         logging.info(f'Recieved response:: {r_series_id}')
-        if r_series_id.count <= 0:
+        if r_series_id is None:
             new_series_id_r: APIResponse = (self.table('series_test')
                                             .insert({"teams": teams}, count=CountMethod.exact)
                                             .execute())
