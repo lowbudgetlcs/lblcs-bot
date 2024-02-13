@@ -44,7 +44,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
-          user: ${{ secrets.DIGITAL_OCEAN_USER }}
+          username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_KEY }}
           script: |
             docker compose down
