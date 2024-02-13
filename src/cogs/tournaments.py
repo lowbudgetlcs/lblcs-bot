@@ -13,8 +13,14 @@ def check_code_role(interaction: discord.Interaction) -> bool:
     return True in authorized
 
 
+def in_valid_channel(interaction: discord.Interaction) -> bool:
+    valid_channels = [1206744483304316949]
+    return interaction.channel.id in valid_channels
+
+
 # def is_owner(interaction: discord.Interaction) -> bool:
 #     return interaction.user.id == 247886805821685761 or interaction.user.id == 331884725578760204
+
 
 class Tournament(commands.Cog):
     def __init__(self, bot_i):
@@ -22,13 +28,18 @@ class Tournament(commands.Cog):
         self.bot = bot_i
         self.tournaments = []
 
-    @app_commands.command(name='create-tournament',
-                          description='Used to create a new season of LBLCS! Only usable by Developers.')
+    @app_commands.command(
+        name="create-tournament",
+        description="Used to create a new season of LBLCS! Only usable by Developers.",
+    )
     @app_commands.checks.has_role("Developer")
     async def generate_tournament(self, interaction: discord.Interaction):
         await interaction.response.send_message("Hello, world!")
 
-    @app_commands.command(name='generate-tournament-code', description="Used to generate a tournament code!")
+    @app_commands.command(
+        name="generate-tournament-code",
+        description="Used to generate a tournament code!",
+    )
     @app_commands.check(check_code_role)
     async def tcode(self, interaction: discord.Interaction):
         """Command used by captains to generate a tournament code!
