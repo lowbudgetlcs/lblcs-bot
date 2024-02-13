@@ -40,7 +40,7 @@ jobs:
           push: true
           tags: lblcs/discord-bot:latest
 
-      - name: SSH into Digital Ocean
+      - name: SSH into Digital Ocean and Deploy Container
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
