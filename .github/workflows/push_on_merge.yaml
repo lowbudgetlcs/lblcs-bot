@@ -47,6 +47,5 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_KEY }}
           script: |
-            docker compose down
-            docker pull lblcs/discord-bot
-            docker compose up --detach
+            chmod +x run.sh
+            ./run.sh
