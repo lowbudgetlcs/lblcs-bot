@@ -40,13 +40,12 @@ jobs:
           push: true
           tags: lblcs/discord-bot:latest
 
-      - name: SSH into Digital Ocean
-        uses: appleboy/ssh-action@1.0.3
+      - name: SSH into Digital Ocean and Deploy Container
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
-          username: ${{ secrets.DIGITAL_OCEAN_USERNAME }}
+          username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_KEY }}
           script: |
-            docker compose down
-            docker pull lblcs/discord-bot
-            docker compose up
+            chmod +x run.sh
+            ./run.sh
