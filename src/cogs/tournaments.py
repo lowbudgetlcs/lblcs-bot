@@ -7,14 +7,12 @@ import discord, discord.ext.commands as commands
 from discord import app_commands
 
 
-def check_code_role(interaction: discord.Interaction) -> bool:
+def check_allowed_command(interaction: discord.Interaction) -> bool:
     accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Dev"]
     authorized = [(x.name in accepted_roles) for x in interaction.user.roles]
-    return True in authorized
-
-
-# def is_owner(interaction: discord.Interaction) -> bool:
-#     return interaction.user.id == 247886805821685761 or interaction.user.id == 331884725578760204
+    if len(authorized) > 0:
+        return interaction.channel_id == 1206744483304316949
+    raise discord.app_commands.CheckFailure
 
 class Tournament(commands.Cog):
     def __init__(self, bot_i):
@@ -29,7 +27,7 @@ class Tournament(commands.Cog):
         await interaction.response.send_message("Hello, world!")
 
     @app_commands.command(name='generate-tournament-code', description="Used to generate a tournament code!")
-    @app_commands.check(check_code_role)
+    @app_commands.check(check_allowed_command)
     async def tcode(self, interaction: discord.Interaction):
         """Command used by captains to generate a tournament code!
         Pipeline:
