@@ -23,7 +23,7 @@ intents = discord.Intents.default()
 
 # Logging setup
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 # logging.getLogger('discord.http').setLevel(logging.INFO)
 # logging.getLogger('discord.gateway').setLevel(logging.INFO)
 

@@ -18,7 +18,7 @@ class Bot(commands.Bot):
         self.tree.on_error = self.on_tree_error
         logging.info("We are ready to rumble!")
 
-        # await self.tree.sync()
+        #await self.tree.sync()
 
     async def setup_hook(self):
         logging.info('Loading cogs')
@@ -31,5 +31,7 @@ class Bot(commands.Bot):
                 f"Command is currently on cooldown! Try again in **{error.retry_after:.2f}** seconds!", ephemeral=True)
         elif isinstance(error, discord.app_commands.MissingRole):
             return await interaction.response.send_message(f"You're missing permissions to use that", ephemeral=True)
+        elif isinstance(error,discord.app_commands.CheckFailure):
+            return await interaction.response.send_message(f"Didn't pass a check and it's your fault... jerk >:^(", ephemeral=True)
         else:
             raise error
