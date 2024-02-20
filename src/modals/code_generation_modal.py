@@ -62,18 +62,21 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
         leagues = await self.bot.supabase.fetch_divisions()
         logging.info(f'League Input:{self.league.value}')
         logging.info(f'Leagues: {leagues}')
-        if self.league.value.upper() not in leagues:
+        if self.league.value.upper() not in [league["division_name"] for league in leagues]:
             raise Exception(f'{self.league.value} not found! Please check for typos and try again.')
-        league = self.league.value
+        league_name = self.league.value.upper()
+        league_id = [league["division_id"] for league in leagues if league["division_name"] == league_name][0]
+        print(f"League ID: {league_id}")
 
-        teams = await self.bot.supabase.fetch_teams(league)
-        if self.team1.value.lower() not in [team.lower() for team in teams]:
-            raise Exception(f"{self.team1.value} not found! Please check for typos and try again.")
-        if self.team2.value.lower() not in [team.lower() for team in teams]:
-            raise Exception(f"{self.team2.value} not found! Please check for typos and try again.")
-        if self.team1.value.lower() == self.team2.value.lower():
+        team1 = self.team1.value
+        team1_id = await self.bot.supabase.fetch_like_team(team1)
+        team2 = self.team2.value
+        team2_id = await self.bot.supabase.fetch_like_team(team2)
+
+        if team1_id == team2_id:
             raise Exception("Teams cannot play themselves! Try again!")
-        team_lst = [self.team1.value, self.team2.value]
+
+        team_id_lst = [team1_id, team2_id]
 
         try:
             game = int(self.game.value)
@@ -81,15 +84,20 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
             raise Exception("Game must be an integer! i.e 1 for game 1, 2 for game 2 etc...")
 
         # ------- FETCH OR GENERATE SERIES ID -------
-        series_id = await self.bot.supabase.fetch_series_id(team_lst)
+        series_id = await self.bot.supabase.fetch_series_id(team_id_lst)
 
         # ------- GENERATE TCODE WITH METADATA -------
-        metadata: Metadata = Metadata(series_id=series_id, league=self.league.value,
-                                      teams=[self.team1.value, self.team2.value], game=game)
+        metadata: Metadata = Metadata(series_id=series_id, league=league_id,
+                                      teams=team_id_lst, game=game)
         code = await generate_code(metadata)
 
+        # ------- WRITE CODE TO SERVER -------
+        league = await self.bot.supabase.fetch_division_by_id(league_id)
+        team1 = await self.bot.supabase.fetch_team_by_id(team1_id)
+        team2 = await self.bot.supabase.fetch_team_by_id(team2_id)
+
         await interaction.response.send_message(
-            f'## {self.league}\n__**{self.team1}**__ v.s. __**{self.team2}**__\nCode:: `{code}`', ephemeral=False)
+            f'## {league}\n__**{team1}**__ v.s. __**{team2}**__\nCode:: `{code}`', ephemeral=False)
 
     async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
         logging.warning(error)

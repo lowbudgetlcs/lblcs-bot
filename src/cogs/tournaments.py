@@ -11,8 +11,9 @@ def check_allowed_command(interaction: discord.Interaction) -> bool:
     accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Dev"]
     authorized = [(x.name in accepted_roles) for x in interaction.user.roles]
     if len(authorized) > 0:
-        return interaction.channel_id == 1206744483304316949
+        return interaction.channel_id == 1206744483304316949 or interaction.channel_id == 796166735795060777
     raise discord.app_commands.CheckFailure
+
 
 class Tournament(commands.Cog):
     def __init__(self, bot_i):
