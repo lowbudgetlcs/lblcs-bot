@@ -8,7 +8,7 @@ from discord import app_commands
 
 
 def check_allowed_command(interaction: discord.Interaction) -> bool:
-    accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Dev"]
+    accepted_roles = ["Captain", "Admin", "Sub-Team-Lead", "Developer"]
     authorized = [(x.name in accepted_roles) for x in interaction.user.roles]
     if len(authorized) > 0:
         return interaction.channel_id == 1206744483304316949

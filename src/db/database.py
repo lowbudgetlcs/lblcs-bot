@@ -1,6 +1,7 @@
 import logging
 import json
 import supabase
+from src.models.user import User
 from postgrest.base_request_builder import CountMethod
 from postgrest import APIResponse
 from postgrest.base_request_builder import SingleAPIResponse
@@ -26,10 +27,10 @@ class Supabase(supabase.Client):
         """Fetch all teams from a given league"""
         logging.info(f"Fetching teams from {division_name}")
         r_div_id: SingleAPIResponse = (self.table('divisions')
-                                       .select('division_id')
-                                       .eq('division_name', division_name.upper())
-                                       .limit(1).single()
-                                       .execute())
+                                        .select('division_id')
+                                        .eq('division_name', division_name.upper())
+                                        .limit(1).single()
+                                        .execute())
         logging.debug(f'Recieved response:: {r_div_id}')
         division_id = r_div_id.data["division_id"]
         logging.debug(f'Fetched Division ID: {division_id}')
@@ -48,10 +49,10 @@ class Supabase(supabase.Client):
         """Fetch a series id if it exists, otherwise creates one and populates the table"""
         logging.info(f'Fetching or generating series id')
         r_series_id: SingleAPIResponse = (self.table('series_test')
-                                          .select('series_id', count=CountMethod.exact)
-                                          .contains('teams', teams)
-                                          .limit(1).maybe_single()
-                                          .execute())
+                                            .select('series_id', count=CountMethod.exact)
+                                            .contains('teams', teams)
+                                            .limit(1).maybe_single()
+                                            .execute())
         logging.info(f'Recieved response:: {r_series_id}')
         if r_series_id is None:
             new_series_id_r: APIResponse = (self.table('series_test')
@@ -63,3 +64,14 @@ class Supabase(supabase.Client):
                 return series_id
         series_id = r_series_id.data["series_id"]
         return series_id
+    async def insert_user(self,user: User) -> bool:
+        logging.info(f'Inserting users into Supabase')
+        data, count = (self.table('users')
+            .insert({"user_id": user.user_id, "user_name": user.user_name,"display_name": user.display_name,"team": user.team_id})
+            .execute())
+        return True
+
+    async def fetch_all_teams(self):
+        response: APIResponse = self.table('teams').select("*").execute()
+        logging.info(f'Recieved response:: {response}')
+        return response.data

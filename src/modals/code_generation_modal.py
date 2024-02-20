@@ -73,7 +73,7 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
             raise Exception(f"{self.team2.value} not found! Please check for typos and try again.")
         if self.team1.value.lower() == self.team2.value.lower():
             raise Exception("Teams cannot play themselves! Try again!")
-        team_lst = [self.team1.value, self.team2.value]
+        team_lst = [self.team1.value.lower(), self.team2.value.lower()]
 
         try:
             game = int(self.game.value)
