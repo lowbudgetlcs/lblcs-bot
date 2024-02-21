@@ -10,28 +10,33 @@ class Scraper(commands.Cog):
         logging.info("Loading scraper cog")
         self.bot = bot
 
-    def read_members(self, teams) -> [User]:
+    def get_unsynced_users(self, teams) -> [User]:
         discord_users = []
+        assigned_team = 0
         guild = self.bot.get_guild(self.bot.guild_id)
         role = guild.get_role(585870102780575744)
         members = role.members
         for member in members:
             roles = [role.name for role in member.roles]
             for team in teams:
-                if team.team_name in roles:
-                    users.append(User(member.id, member.name, member.display_name, team.team_id))
-        return users
+                if team["team_name"] in roles:
+                    assigned_team = team["team_id"]
+                    break
+            if assigned_team != 0:
+                discord_users.append(User(member.id, member.name, member.display_name,assigned_team))
+                assigned_team = 0
+        return discord_users
 
     async def read_teams(self) -> [str]:
         teams = await self.bot.supabase.fetch_all_teams()
+        return teams
 
     @app_commands.command(name='sync-users', description="Used to sync users!")
     @app_commands.checks.has_role('Developer')
     async def sync_users(self, interaction: discord.Interaction):
         logging.info('Syncing users')
         teams = await self.read_teams()
-        for team in teams:
-            print(team)
-        # users = self.read_members(teams)
-        # for user in users:
-        #     bot.supabase.insert_user(user)
+        users = self.get_unsynced_users(teams)
+        for user in users:
+            logging.info(user)
+            await self.bot.supabase.insert_user(user)

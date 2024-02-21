@@ -67,11 +67,10 @@ class Supabase(supabase.Client):
     async def insert_user(self,user: User) -> bool:
         logging.info(f'Inserting users into Supabase')
         data, count = (self.table('users')
-            .insert({"user_id": user.user_id, "user_name": user.user_name,"display_name": user.display_name,"team": user.team_id})
+            .insert({"user_id": user.user_id, "user_name": user.user_name,"display_name": user.display_name,"team_id": user.team_id})
             .execute())
         return True
 
     async def fetch_all_teams(self):
-        response: APIResponse = self.table('teams').select("*").execute()
-        logging.info(f'Recieved response:: {response}')
+        response: APIResponse = self.table('teams').select("*",count=CountMethod.exact).execute()
         return response.data
