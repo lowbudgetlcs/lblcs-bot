@@ -21,8 +21,10 @@ class Tournament(commands.Cog):
         self.bot = bot_i
         self.tournaments = []
 
-    @app_commands.command(name='create-tournament',
-                          description='Used to create a new season of LBLCS! Only usable by Developers.')
+    @app_commands.command(
+        name="create-tournament",
+        description="Used to create a new season of LBLCS! Only usable by Developers.",
+    )
     @app_commands.checks.has_role("Developer")
     async def generate_tournament(self, interaction: discord.Interaction):
         await interaction.response.send_message("Hello, world!")

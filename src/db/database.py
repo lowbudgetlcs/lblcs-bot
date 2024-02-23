@@ -28,22 +28,27 @@ class Supabase(supabase.Client):
     async def fetch_teams(self, division_name: str) -> list[str]:
         """Fetch all teams from a given league"""
         logging.info(f"Fetching teams from {division_name}")
-        r_div_id: SingleAPIResponse = (self.table('divisions')
-                                       .select('division_id')
-                                       .eq('division_name', division_name.upper())
-                                       .limit(1).single()
-                                       .execute())
-        logging.debug(f'Recieved response:: {r_div_id}')
+        r_div_id: SingleAPIResponse = (
+            self.table("divisions")
+            .select("division_id")
+            .eq("division_name", division_name.upper())
+            .limit(1)
+            .single()
+            .execute()
+        )
+        logging.debug(f"Recieved response:: {r_div_id}")
         division_id = r_div_id.data["division_id"]
-        logging.debug(f'Fetched Division ID: {division_id}')
-        r_teams: APIResponse = (self.table('teams')
-                                .select('team_name', count=CountMethod.exact)
-                                .eq('division_id', division_id)
-                                .execute())
-        logging.debug(f'Recieved response:: {r_teams}')
+        logging.debug(f"Fetched Division ID: {division_id}")
+        r_teams: APIResponse = (
+            self.table("teams")
+            .select("team_name", count=CountMethod.exact)
+            .eq("division_id", division_id)
+            .execute()
+        )
+        logging.debug(f"Recieved response:: {r_teams}")
         if r_teams.count <= 0:
             raise Exception("Error retrieving teams")
-        logging.debug(f'Fetched teams:: {r_teams.data}')
+        logging.debug(f"Fetched teams:: {r_teams.data}")
         teams = [team["team_name"] for team in r_teams.data]
         return teams
 

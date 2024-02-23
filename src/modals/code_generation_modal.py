@@ -11,51 +11,43 @@ async def generate_code(metadata: Metadata) -> str | None:
     tournament_id = os.getenv("TOURNAMENT_ID")
     riot_token = os.getenv("RIOT_TOKEN")
     url = f"{tournament_code_endpoint}{tournament_id}"
-    headers = {
-        "X-Riot-Token": riot_token
-    }
+    headers = {"X-Riot-Token": riot_token}
     body = {
         "mapType": "SUMMONERS_RIFT",
         "metadata": metadata.serialize(),
         "pickType": "TOURNAMENT_DRAFT",
         "spectatorType": "ALL",
-        "teamSize": 5
+        "teamSize": 5,
     }
     code_response = requests.post(url, headers=headers, json=body)
     if code_response.status_code != 200:
         logging.error(code_response)
-        raise Exception("Riot API Error! Contact ruuffian or open urgent ticket immediately!")
+        raise Exception(
+            "Riot API Error! Contact ruuffian or open urgent ticket immediately!"
+        )
     return code_response.json()[0]
 
 
-class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
+class CodeGenerationModal(discord.ui.Modal, title="CodeGenerationModal"):
     def __init__(self, bot_i):
         super().__init__()
         self.bot = bot_i
 
     league = discord.ui.TextInput(
-        label='League',
-        placeholder='Economy, Commercial...',
+        label="League",
+        placeholder="Economy, Commercial...",
         required=True,
     )
 
     team1 = discord.ui.TextInput(
-        label='Team 1',
-        placeholder='First team',
-        required=True
+        label="Team 1", placeholder="First team", required=True
     )
 
     team2 = discord.ui.TextInput(
-        label='Team 2',
-        placeholder='Second team',
-        required=True
+        label="Team 2", placeholder="Second team", required=True
     )
 
-    game = discord.ui.TextInput(
-        label='Game #',
-        placeholder='1,2,3...',
-        required=True
-    )
+    game = discord.ui.TextInput(label="Game #", placeholder="1,2,3...", required=True)
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
         # ------- VALIDATE FORM -------
@@ -81,7 +73,9 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
         try:
             game = int(self.game.value)
         except ValueError:
-            raise Exception("Game must be an integer! i.e 1 for game 1, 2 for game 2 etc...")
+            raise Exception(
+                "Game must be an integer! i.e 1 for game 1, 2 for game 2 etc..."
+            )
 
         # ------- FETCH OR GENERATE SERIES ID -------
         series_id = await self.bot.supabase.fetch_series_id(team_id_lst)
@@ -99,8 +93,11 @@ class CodeGenerationModal(discord.ui.Modal, title='CodeGenerationModal'):
         await interaction.response.send_message(
             f'## {league}\n__**{team1}**__ v.s. __**{team2}**__\nCode:: `{code}`', ephemeral=False)
 
-    async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
+    async def on_error(
+        self, interaction: discord.Interaction, error: Exception
+    ) -> None:
         logging.warning(error)
         await interaction.response.send_message(
-            f'Oops, we ran into an error!\nHere is the error:: {error}\nVery likely, this is the result of a typo. If the printed error message is confusing or you are positive there is no typo, please open an urgent ticket immediately!',
-            ephemeral=True)
+            f"Oops, we ran into an error!\nHere is the error:: {error}\nVery likely, this is the result of a typo. If the printed error message is confusing or you are positive there is no typo, please open an urgent ticket immediately!",
+            ephemeral=True,
+        )
