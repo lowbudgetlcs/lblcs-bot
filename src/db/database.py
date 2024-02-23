@@ -55,14 +55,14 @@ class Supabase(supabase.Client):
     async def fetch_series_id(self, teams: list[int]) -> int:
         """Fetch a series id if it exists, otherwise creates one and populates the table"""
         logging.info(f'Fetching or generating series id')
-        r_series_id: SingleAPIResponse = (self.table('series_test')
+        r_series_id: SingleAPIResponse = (self.table('series')
                                           .select('*', count=CountMethod.exact)
                                           .contains('team_ids', list(map(str, teams)))
                                           .limit(1).maybe_single()
                                           .execute())
         logging.info(f'Recieved response:: {r_series_id}')
         if r_series_id is None:
-            new_series_id_r: APIResponse = (self.table('series_test')
+            new_series_id_r: APIResponse = (self.table('series')
                                             .insert({"team_ids": list(map(str, teams))}, count=CountMethod.exact)
                                             .execute())
             logging.info(f'Recieved response: {new_series_id_r}')
