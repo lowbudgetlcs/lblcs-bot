@@ -24,8 +24,8 @@ intents = discord.Intents.default()
 # Logging setup
 logger = logging.getLogger("discord")
 logger.setLevel(logging.DEBUG)
-# logging.getLogger('discord.http').setLevel(logging.INFO)
-# logging.getLogger('discord.gateway').setLevel(logging.INFO)
+logging.getLogger('discord.http').setLevel(logging.INFO)
+logging.getLogger('discord.gateway').setLevel(logging.INFO)
 
 handler = logging.handlers.RotatingFileHandler(
     filename="/var/logs/lblcs/lblcs.log",
