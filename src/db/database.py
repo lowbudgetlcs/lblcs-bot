@@ -1,6 +1,7 @@
 import logging
 import json
 import supabase
+from src.models.user import User
 from postgrest.base_request_builder import CountMethod
 from postgrest import APIResponse
 from postgrest.base_request_builder import SingleAPIResponse
@@ -55,14 +56,14 @@ class Supabase(supabase.Client):
     async def fetch_series_id(self, teams: list[int]) -> int:
         """Fetch a series id if it exists, otherwise creates one and populates the table"""
         logging.info(f'Fetching or generating series id')
-        r_series_id: SingleAPIResponse = (self.table('series_test')
+        r_series_id: SingleAPIResponse = (self.table('series')
                                           .select('*', count=CountMethod.exact)
                                           .contains('team_ids', list(map(str, teams)))
                                           .limit(1).maybe_single()
                                           .execute())
         logging.info(f'Recieved response:: {r_series_id}')
         if r_series_id is None:
-            new_series_id_r: APIResponse = (self.table('series_test')
+            new_series_id_r: APIResponse = (self.table('series')
                                             .insert({"team_ids": list(map(str, teams))}, count=CountMethod.exact)
                                             .execute())
             logging.info(f'Recieved response: {new_series_id_r}')
@@ -72,6 +73,24 @@ class Supabase(supabase.Client):
         series_id = r_series_id.data["series_id"]
         return series_id
 
+    async def insert_user(self,user: User) -> bool:
+        logging.info(f'Inserting users into Supabase')
+        data, count = (self.table('users')
+            .insert({"user_id": user.user_id, "user_name": user.user_name,"display_name": user.display_name,"team_id": user.team_id})
+            .execute())
+        return True
+
+    async def fetch_all_teams(self):
+        response: APIResponse = self.table('teams').select("*",count=CountMethod.exact).execute()
+        if response.count <= 0:
+            raise exception("No teams found")
+        return response.data
+
+    async def fetch_all_users(self):
+        response: APIResponse = self.table('users').select("*",count=CountMethod.exact).execute()
+        if response.count <= 0:
+            raise exception("No users found")
+        return response.data
     async def fetch_like_team(self, team_name: str) -> int:
         logging.info(f'Fetching like team id')
         r_team_id: SingleAPIResponse = (self.table('teams')

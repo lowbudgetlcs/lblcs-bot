@@ -19,7 +19,7 @@ tournament_code_endpoint = os.getenv("TOURNAMENT_CODE_ENDPOINT")
 db_client: Supabase = Supabase(supabase_url, supabase_key)
 
 # Bot setup
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 
 # Logging setup
 logger = logging.getLogger("discord")
