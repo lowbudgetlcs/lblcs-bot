@@ -10,4 +10,4 @@ class Metadata:
     game: int = 0
 
     def serialize(self):
-        return json.dumps(asdict(self))
+        return json.dumps(asdict(self),separators=(',', ':'))
