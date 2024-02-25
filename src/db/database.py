@@ -64,6 +64,7 @@ class Supabase(supabase.Client):
                 return series_id
         series_id = r_series_id.data["series_id"]
         return series_id
+
     async def insert_user(self,user: User) -> bool:
         logging.info(f'Inserting users into Supabase')
         data, count = (self.table('users')
@@ -73,4 +74,12 @@ class Supabase(supabase.Client):
 
     async def fetch_all_teams(self):
         response: APIResponse = self.table('teams').select("*",count=CountMethod.exact).execute()
+        if response.count <= 0:
+            raise exception("No teams found")
+        return response.data
+
+    async def fetch_all_users(self):
+        response: APIResponse = self.table('users').select("*",count=CountMethod.exact).execute()
+        if response.count <= 0:
+            raise exception("No users found")
         return response.data
